@@ -12,3 +12,4 @@ C:\Users\Oceano\source\repos\Ejercicios\EcharElRato\obj\Debug\net10.0\refint\Ech
 C:\Users\Oceano\source\repos\Ejercicios\EcharElRato\obj\Debug\net10.0\EcharElRato.pdb
 C:\Users\Oceano\source\repos\Ejercicios\EcharElRato\obj\Debug\net10.0\EcharElRato.genruntimeconfig.cache
 C:\Users\Oceano\source\repos\Ejercicios\EcharElRato\obj\Debug\net10.0\ref\EcharElRato.dll
+C:\Users\Oceano\source\repos\Ejercicios\EcharElRato\obj\Debug\net10.0\EcharElRato.sourcelink.json

@@ -1,58 +1,54 @@
 ﻿using System.Text.RegularExpressions;
 
-// x No le damos importancia a la defensa para reducir el daño de ataque
-// x No funciona crítico del personaje SIN matar.
-// x Cuanta vida te queda después de recibir daño no sale.
 internal class Program
 {
     static int ronda = 0;
     static int tirada, tiradaEnemigo;
-    static bool contraataque = false;
-    static bool contraataqueEnemigo = false;
     static Personaje pj = null;
     static Personaje enemigo = null;
     static Random Dados = new Random();
+
     static void Main(string[] args)
     {
         pj = CrearPersonaje();
-
         Menu();
     }
-    public static Personaje CrearPersonaje()
+
+    private static Personaje CrearPersonaje()
     {
-        string input;
-        while (pj == null)
+        while (true)
         {
             Console.WriteLine("\n--- Inserta nombre del personaje ---");
-            input = Console.ReadLine();
+            string input = Console.ReadLine();
 
             if (Regex.IsMatch(input, @"^[a-zA-Z]+$"))
             {
-                Console.WriteLine("\n--- ¡EMPIEZA EL JUEGO!: --- ");
-                return new Personaje(input, 20, 1, 1);
+                Console.WriteLine("\n--- ¡EMPIEZA EL JUEGO! ---");
+                return new Personaje(input, 20, 1);
             }
+
+            Console.WriteLine("El nombre solo puede contener letras.");
         }
-        return null;
     }
-    public static int ComprobarOperacion(string input)
+
+    private static int ComprobarOperacion(string input)
     {
         if (int.TryParse(input, out int resultado))
         {
             return resultado;
         }
-        else
-        {
-            Console.WriteLine("No se ha reconocido la operación solicitada. Por favor, seleccione una válida.");
-            return -1;
-        }
+
+        Console.WriteLine("No se ha reconocido la operación solicitada. Por favor, seleccione una válida.");
+        return -1;
     }
-    public static void Menu()
+
+    private static void Menu()
     {
         int operacion = -1;
 
         while (operacion != 0)
         {
-            Console.WriteLine("--- SELECCIONA UNA OPERACIÓN ---\n ");
+            Console.WriteLine("\n--- SELECCIONA UNA OPERACIÓN ---");
             Console.WriteLine("1. Darse de piñas.");
             Console.WriteLine("2. Ver estadísticas.");
             Console.WriteLine("0. Salir del juego.");
@@ -71,182 +67,175 @@ internal class Program
                     break;
 
                 case 0:
-                    System.Environment.Exit(0);
+                    Environment.Exit(0);
                     break;
             }
         }
     }
-    public static void AvanzarRonda()
+
+    private static void AvanzarRonda()
     {
-
-        Console.WriteLine("\n--- RONDA: --- " + ronda);
-        ronda++;
-        Console.ReadLine(); // Darle al enter para iniciar la ronda.
-
-        switch (Dados.Next(0, 3))
+        // FIX 5: sustituida la recursión en el caso "chill" por un bucle do-while.
+        // Antes, encadenar varios "chill" seguidos apilaba llamadas en el stack indefinidamente.
+        int evento;
+        do
         {
-            case 0: // te atacan
-                Console.WriteLine("¡Has sido atacado! Empieza la batalla... ¡Sobrevive!");
-                EmpezarPelea(false);
-                break;
-            case 1: // emboscada
-                Console.WriteLine("¡Has sido emboscado! Pierdes 1p. de vida automáticamente... y empieza la batalla, ¡sobrevive!");
-                pj.Vida--;
-                EmpezarPelea(true);
-                break;
+            Console.WriteLine("\n--- RONDA: " + ronda + " ---");
+            ronda++;
+            Console.ReadLine();
 
-            case 2: // chill
-                Console.WriteLine("Caminas con tranquilidad... no parece haber amenazas cerca. Aprovechas para descansar. +1 vida.");
-                pj.Vida++;
-                AvanzarRonda();
-                break;
-        }
+            evento = Dados.Next(0, 3);
+
+            switch (evento)
+            {
+                case 0:
+                    Console.WriteLine("¡Has sido atacado! Empieza la batalla... ¡Sobrevive!");
+                    EmpezarPelea(false);
+                    break;
+
+                case 1:
+                    Console.WriteLine("¡Has sido emboscado! Pierdes 1 punto de vida automáticamente... ¡Sobrevive!");
+                    pj.Vida--;
+                    EmpezarPelea(true);
+                    break;
+
+                case 2:
+                    Console.WriteLine("Caminas con tranquilidad... no hay amenazas cerca. Descansas. +1 vida.");
+                    pj.Vida++;
+                    break;
+            }
+        } while (evento == 2); // si fue "chill" repetimos la ronda en lugar de apilar llamadas
     }
-    public static void EmpezarPelea(bool emboscado)
+
+    private static void EmpezarPelea(bool emboscado)
     {
-        enemigo = new Personaje("NPC", Dados.Next(2, 4), Dados.Next(1, 3), Dados.Next(1, 3));
+        enemigo = new Personaje("NPC", Dados.Next(2, 4), Dados.Next(1, 3));
 
         while (enemigo.Vida > 0)
         {
             Console.WriteLine("\n--- ESTADÍSTICAS DE TU OPONENTE ---");
             Console.WriteLine(enemigo.VerStats());
 
-            tirada = pj.TirarDado();
-            tiradaEnemigo = enemigo.TirarDado();
+            // FIX 2: tiradas separadas para iniciativa en cada iteración del combate.
+            // Antes, tirada y tiradaEnemigo se usaban tanto para la iniciativa como para
+            // determinar críticos de ataque, fusionando dos fases que deben ser independientes.
+            // Ahora: tirada/tiradaEnemigo = iniciativa. Dentro de cada turno se tira de nuevo para el ataque.
+            tirada = TirarDado();
+            tiradaEnemigo = TirarDado();
 
-            bool tuTurno = emboscado || tirada > tiradaEnemigo;
-            // si te emboscan te toca a ti si o si. Y solo en caso de que tu dado sea mayor al del enemigo será tu turno (iniciativa)
+            // FIX 4: emboscado solo fuerza el primer turno, luego la iniciativa decide con normalidad.
+            // Antes, emboscado era true durante toda la pelea, por lo que el jugador
+            // siempre tenía el turno independientemente de las tiradas.
+            bool tuTurno = emboscado || tirada >= tiradaEnemigo;
+            emboscado = false; // se consume tras la primera iteración
 
-            if (tuTurno && !contraataqueEnemigo) // que sea tu turno (de normal te podría tocar pero te podrían contraatacar)
+            if (tuTurno)
             {
-                TurnoTuyo(false);
-            } else
+                TurnoTuyo();
+            }
+            else
             {
-                TurnoOponente(false);
+                TurnoOponente();
             }
         }
 
-        Menu(); // regresamos al menu (solo va a suceder cuando el enemigo muera, bien tú)
+        Menu();
     }
-    public static void TurnoTuyo(bool contraataque)
+
+    private static void TurnoTuyo()
     {
         Console.WriteLine("\n--- TU TURNO ---");
         Console.ReadLine();
 
-        if (tirada > tiradaEnemigo)
+        // FIX 2: tirada de ataque independiente de la de iniciativa.
+        int tiradaAtaque = TirarDado();
+        int tiradaDefensaEnemigo = TirarDado();
+
+        Console.WriteLine($"Tiras: {tiradaAtaque} de ataque. El enemigo saca: {tiradaDefensaEnemigo} de defensa.");
+
+        if (tiradaAtaque > tiradaDefensaEnemigo)
         {
-            if (tirada == 20) // crítico atk
+            // FIX 2: el crítico de ataque se evalúa sobre la tirada de ataque, no sobre la de iniciativa.
+            int danoReal = tiradaAtaque == 20 ? pj.Ataque + 1 : pj.Ataque;
+
+            if (tiradaAtaque == 20)
+                Console.WriteLine("¡CRÍTICO! (+1 de daño)");
+
+            if (enemigo.Vida - danoReal <= 0)
             {
-                if (enemigo.Vida - (pj.Ataque + 1) <= 0) // crítico y lo matas
-                {
-                    Console.WriteLine($"Has sacado un CRÍTICO (+1 a tu ataque).");
-                    Console.WriteLine("¡Has derrotado a tu enemigo!");
-                    enemigo.Vida = 0;
-                    Console.ReadLine();
-                }
-                else // crítico pero no lo matas
-                {
-                    Console.WriteLine($"Has sacado un CRÍTICO (+1 a tu ataque).");
-                    enemigo.Vida -= pj.Ataque + 1;
-                    Console.ReadLine();
-                }
-            }
-            else if (enemigo.Vida - pj.Ataque <= 0) // ataque normal pero lo matas
-            {
-                Console.WriteLine($"Has sacado un {tirada} de ataque frente a una defensa de: {tiradaEnemigo} del enemigo.");
                 Console.WriteLine("¡Has derrotado a tu enemigo!");
                 enemigo.Vida = 0;
-                Console.ReadLine();
             }
-
-            else // ataque normal pero no lo matas
+            else
             {
-                Console.WriteLine($"Has sacado un {tirada} de ataque frente a una defensa de: {tiradaEnemigo} del enemigo.");
-                Console.WriteLine("¡Atravesaste la defensa de tu enemigo! Le has infligido: " + pj.Ataque + " puntos de daño.");
-                enemigo.Vida -= pj.Ataque;
-                Console.ReadLine();
+                enemigo.Vida -= danoReal;
+                Console.WriteLine($"¡Atravesaste la defensa enemiga! Daño infligido: {danoReal}. Vida del enemigo: {enemigo.Vida}");
             }
         }
-
-        else if (tiradaEnemigo == 20) // defensa crítica del enemigo
+        else if (tiradaDefensaEnemigo == 20)
         {
-            Console.WriteLine($"Has sacado un {tirada} de ataque frente a una defensa CRÍTICA del enemigo.");
-            Console.WriteLine("El enemigo resistió tu acometida Y TE CONTRAATACA.");
-            TurnoOponente(true); // hace que los 2 siguientes ataques sean del enemigo. FALLA
-            contraataqueEnemigo = false;
+            // FIX 1 y 3: el contraataque enemigo ya no usa variables de campo ni recursión con tiradas viejas.
+            // Se llama directamente a TurnoOponente() con nuevas tiradas, que se generan dentro del propio método.
+            Console.WriteLine("¡DEFENSA CRÍTICA del enemigo! Te contraataca.");
             Console.ReadLine();
+            TurnoOponente();
         }
-        else // defensa normal enemiga
+        else
         {
-            Console.WriteLine($"Has sacado un {tirada} de ataque frente a una defensa de: {tiradaEnemigo} del enemigo.");
             Console.WriteLine("El enemigo resistió tu acometida.");
-            Console.ReadLine();
         }
 
-        if (contraataque) // atacamos de nuevo
-        {
-            Console.WriteLine("Inicias tu contraataque.");
-            TurnoTuyo(true);
-        }
+        Console.ReadLine();
     }
 
-    public static void TurnoOponente(bool contraataqueEnemigo)
+    private static void TurnoOponente()
     {
         Console.WriteLine("\n--- TURNO DEL OPONENTE ---");
         Console.ReadLine();
 
-        if (tiradaEnemigo > tirada)
+        // FIX 2: tirada de ataque independiente para el turno del oponente.
+        int tiradaAtaqueEnemigo = TirarDado();
+        int tiradaDefensaTuya = TirarDado();
+
+        Console.WriteLine($"El enemigo tira: {tiradaAtaqueEnemigo} de ataque. Tu defensa: {tiradaDefensaTuya}.");
+
+        if (tiradaAtaqueEnemigo > tiradaDefensaTuya)
         {
-            if (tiradaEnemigo == 20) // crítico atk enemigo
+            // FIX 2: el crítico enemigo se evalúa sobre su tirada de ataque, no sobre la de iniciativa.
+            int danoRecibido = tiradaAtaqueEnemigo == 20 ? enemigo.Ataque + 1 : enemigo.Ataque;
+
+            if (tiradaAtaqueEnemigo == 20)
+                Console.WriteLine("¡CRÍTICO ENEMIGO! (+1 de daño)");
+
+            if (pj.Vida - danoRecibido <= 0)
             {
-                if (pj.Vida - (enemigo.Ataque + 1) <= 0) // atk enemigo crítico que te mata
-                {
-                    Console.WriteLine($"El enemigo ha sacado un CRÍTICO (+1 a su ataque).");
-                    Console.WriteLine("¡Has sido derrotado! ¡Fin de la partida!");
-                    // pj.Vida = 0;
-                    System.Environment.Exit(0);
-                }
-                else // atk crítico enemigo que no te mata
-                {
-                    Console.WriteLine($"El enemigo ha sacado un CRÍTICO (+1 a su ataque).");
-                    pj.Vida -= enemigo.Ataque + 1;
-                    Console.WriteLine($"Te quedan: {pj.Vida} puntos de vida.");
-                    Console.ReadLine();
-                }
-            }
-            else if (pj.Vida - enemigo.Ataque <= 0) // ataque normal enemigo que te mata
-            {
-                Console.WriteLine($"El enemigo ha sacado una tirada de {tiradaEnemigo} frente a tu defensa de {tirada}.");
                 Console.WriteLine("¡Has sido derrotado! ¡Fin de la partida!");
-                // pj.Vida = 0;
-                System.Environment.Exit(0);
+                Environment.Exit(0);
             }
-            else // ataque normal enemigo que no te mata
+            else
             {
-                Console.WriteLine($"El enemigo ha sacado una tirada de {tiradaEnemigo} frente a tu defensa de {tirada}.");
-                Console.WriteLine("¡El enemigo ha atravesado tus defensas! Recibes: " + enemigo.Ataque + " puntos de daño.");
-                pj.Vida -= enemigo.Ataque;
-                Console.WriteLine($"Te quedan: {pj.Vida} puntos de vida.");
-                Console.ReadLine();
+                pj.Vida -= danoRecibido;
+                Console.WriteLine($"¡El enemigo atravesó tus defensas! Daño recibido: {danoRecibido}. Tu vida: {pj.Vida}");
             }
         }
-
-        else if (tirada == 20) // defensa crítica tuya
+        else if (tiradaDefensaTuya == 20)
         {
-            Console.WriteLine($"Has sacado una DEFENSA CRÍTICA frente al ataque de {tiradaEnemigo} de tu enemigo.");
-            Console.WriteLine("CONTRAATACAS A TU ENEMIGO.");
-            TurnoTuyo(true);
-            contraataque = false; // hace que los 2 siguientes ataques sean tuyos
+            // FIX 1 y 3: el contraataque tuyo ya no usa variables de campo ni recursión con tiradas viejas.
+            // Se llama directamente a TurnoTuyo() con nuevas tiradas generadas dentro del método.
+            Console.WriteLine("¡DEFENSA CRÍTICA! Contraatacas al enemigo.");
             Console.ReadLine();
+            TurnoTuyo();
+        }
+        else
+        {
+            Console.WriteLine("Tu defensa fue más fuerte que el ataque enemigo.");
         }
 
-        else // defensa normal tuya
-        {
-            Console.WriteLine($"El enemigo ha sacado una tirada de {tiradaEnemigo} frente a tu defensa de {tirada}.");
-            Console.WriteLine("Tu defensa ha sido más fuerte que el ataque de tu enemigo.");
-            Console.ReadLine();
-        }
+        Console.ReadLine();
     }
 
+    private static int TirarDado()
+    {
+        return Dados.Next(1, 21);
+    }
 }
-
