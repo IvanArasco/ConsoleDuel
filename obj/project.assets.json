@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Oceano\\source\\repos\\ConsoleDuel\\EcharElRato.csproj",
-      "projectName": "EcharElRato",
-      "projectPath": "C:\\Users\\Oceano\\source\\repos\\ConsoleDuel\\EcharElRato.csproj",
+      "projectUniqueName": "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\ConsoleDuel.csproj",
+      "projectName": "ConsoleDuel",
+      "projectPath": "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\ConsoleDuel.csproj",
       "packagesPath": "C:\\Users\\Oceano\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Oceano\\source\\repos\\ConsoleDuel\\obj\\",
+      "outputPath": "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

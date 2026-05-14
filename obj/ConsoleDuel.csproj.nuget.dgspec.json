@@ -1,15 +1,15 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\EcharElRato.csproj": {}
+    "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\ConsoleDuel.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\EcharElRato.csproj": {
+    "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\ConsoleDuel.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\EcharElRato.csproj",
-        "projectName": "EcharElRato",
-        "projectPath": "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\EcharElRato.csproj",
+        "projectUniqueName": "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\ConsoleDuel.csproj",
+        "projectName": "ConsoleDuel",
+        "projectPath": "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\ConsoleDuel.csproj",
         "packagesPath": "C:\\Users\\Oceano\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\Oceano\\source\\repos\\Ejercicios\\ConsoleDuel\\obj\\",
         "projectStyle": "PackageReference",
