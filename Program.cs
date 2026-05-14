@@ -4,8 +4,8 @@ internal class Program
 {
     static int ronda = 0;
     static int tirada, tiradaEnemigo;
-    static Personaje pj = null;
-    static Personaje enemigo = null;
+    static Character pj = null;
+    static Character enemigo = null;
     static Random Dados = new Random();
 
     static void Main(string[] args)
@@ -14,7 +14,7 @@ internal class Program
         Menu();
     }
 
-    private static Personaje CrearPersonaje()
+    private static Character CrearPersonaje()
     {
         while (true)
         {
@@ -24,7 +24,7 @@ internal class Program
             if (Regex.IsMatch(input, @"^[a-zA-Z]+$"))
             {
                 Console.WriteLine("\n--- ¡EMPIEZA EL JUEGO! ---");
-                return new Personaje(input, 20, 1);
+                return new Character(input, 20, 1);
             }
 
             Console.WriteLine("El nombre solo puede contener letras.");
@@ -75,13 +75,16 @@ internal class Program
 
     private static void AvanzarRonda()
     {
-        int evento = Dados.Next(0, 3);
+        int evento;
 
-        Console.WriteLine("\n--- RONDA: " + ronda + " ---");
-        ronda++;
-        Console.ReadLine();
         do
         {
+            evento = Dados.Next(0, 3);
+
+            Console.WriteLine("\n--- RONDA: " + ronda + " ---");
+            ronda++;
+            Console.ReadLine();
+
             switch (evento)
             {
                 case 0:
@@ -106,7 +109,7 @@ internal class Program
 
     private static void EmpezarPelea(bool emboscado)
     {
-        enemigo = new Personaje("NPC", Dados.Next(2, 4), Dados.Next(1, 3));
+        enemigo = new Character("NPC", Dados.Next(2, 4), Dados.Next(1, 3));
 
         tirada = TirarDado();
         tiradaEnemigo = TirarDado();

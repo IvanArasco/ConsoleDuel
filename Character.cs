@@ -1,5 +1,5 @@
 ﻿
-internal class Personaje(string nombre, int vida, int ataque)
+internal class Character(string nombre, int vida, int ataque)
 {
     public string Nombre { get; init; } = nombre;
     public int Vida { get; set; } = vida;
