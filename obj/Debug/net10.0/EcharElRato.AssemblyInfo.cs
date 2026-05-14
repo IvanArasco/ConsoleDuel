@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EcharElRato")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+dfc992ae395d1bdf1e83fa751fcdab1c75fc2221")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1c0fd21637049e96449645d7748ebe5862ad924e")]
 [assembly: System.Reflection.AssemblyProductAttribute("EcharElRato")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EcharElRato")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
