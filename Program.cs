@@ -2,19 +2,19 @@
 
 internal class Program
 {
-    static int ronda = 0;
-    static int tirada, tiradaEnemigo;
-    static Character pj = null;
-    static Character enemigo = null;
-    static Random Dados = new Random();
+    static int Round = 0;
+    static int Roll, EnemyRoll;
+    static Character Pj = null;
+    static Character EnemyCharacter = null;
+    static Random Rolls = new Random();
 
     static void Main(string[] args)
     {
-        pj = CrearPersonaje();
+        Pj = CreateCharacter();
         Menu();
     }
 
-    private static Character CrearPersonaje()
+    private static Character CreateCharacter()
     {
         while (true)
         {
@@ -31,11 +31,11 @@ internal class Program
         }
     }
 
-    private static int ComprobarOperacion(string input)
+    private static int CheckOp(string input)
     {
-        if (int.TryParse(input, out int resultado))
+        if (int.TryParse(input, out int result))
         {
-            return resultado;
+            return result;
         }
 
         Console.WriteLine("No se ha reconocido la operación solicitada. Por favor, seleccione una válida.");
@@ -44,25 +44,25 @@ internal class Program
 
     private static void Menu()
     {
-        int operacion = -1;
+        int op = -1;
 
-        while (operacion != 0)
+        while (op != 0)
         {
             Console.WriteLine("\n--- SELECCIONA UNA OPERACIÓN ---");
             Console.WriteLine("1. Darse de piñas.");
             Console.WriteLine("2. Ver estadísticas.");
             Console.WriteLine("0. Salir del juego.");
 
-            operacion = ComprobarOperacion(Console.ReadLine());
+            op = CheckOp(Console.ReadLine());
 
-            switch (operacion)
+            switch (op)
             {
                 case 1:
-                    AvanzarRonda();
+                    NextRound();
                     break;
 
                 case 2:
-                    Console.WriteLine("\n" + pj.VerStats());
+                    Console.WriteLine("\n" + Pj.CheckStats());
                     Console.ReadLine();
                     break;
 
@@ -73,102 +73,102 @@ internal class Program
         }
     }
 
-    private static void AvanzarRonda()
+    private static void NextRound()
     {
-        int evento;
+        int roundType;
 
         do
         {
-            evento = Dados.Next(0, 3);
+            roundType = Rolls.Next(0, 3);
 
-            Console.WriteLine("\n--- RONDA: " + ronda + " ---");
-            ronda++;
+            Console.WriteLine("\n--- RONDA: " + Round + " ---");
+            Round++;
             Console.ReadLine();
 
-            switch (evento)
+            switch (roundType)
             {
                 case 0:
                     Console.WriteLine("¡Has sido atacado! Empieza la batalla... ¡Sobrevive!");
-                    EmpezarPelea(false); // no te han emboscado
+                    StartFight(false); // no te han emboscado
                     break;
 
                 case 1:
                     Console.WriteLine("¡Has sido emboscado! Pierdes 1 punto de vida automáticamente...");
-                    pj.Vida--;
-                    EmpezarPelea(true); // te emboscaron
+                    Pj.Life--;
+                    StartFight(true); // te emboscaron
                     break;
 
                 case 2:
                     Console.WriteLine("Caminas con tranquilidad... no hay amenazas cerca. Descansas. +1 vida.");
-                    pj.Vida++;
+                    Pj.Life++;
                     break;
             }
 
-        } while (evento == 2); // repetir mientras no haya combate
+        } while (roundType == 2); // repetir mientras no haya combate
     }
 
-    private static void EmpezarPelea(bool emboscado)
+    private static void StartFight(bool emboscado)
     {
-        enemigo = new Character("NPC", Dados.Next(2, 4), Dados.Next(1, 3));
+        EnemyCharacter = new Character("NPC", Rolls.Next(2, 4), Rolls.Next(1, 3));
 
-        tirada = TirarDado();
-        tiradaEnemigo = TirarDado();
+        Roll = RollDice();
+        EnemyRoll = RollDice();
 
-        bool tuTurno = tirada > tiradaEnemigo; // resultado de iniciativa, quien ataca primero
+        bool yourRound = Roll > EnemyRoll; // resultado de iniciativa, quien ataca primero
 
-        while (enemigo.Vida > 0)
+        while (EnemyCharacter.Life > 0)
         {
             Console.WriteLine("\n--- ESTADÍSTICAS DE TU OPONENTE ---");
-            Console.WriteLine(enemigo.VerStats());
+            Console.WriteLine(EnemyCharacter.CheckStats());
 
-            if (tuTurno)
+            if (yourRound)
             {
-                TurnoTuyo();
+                YourRound();
             }
             else
             {
-                TurnoOponente();
+                EnemyRound();
             }
 
-            tuTurno = !tuTurno;
+            yourRound = !yourRound;
 
         }
 
         Menu();
     }
 
-    private static void TurnoTuyo()
+    private static void YourRound()
     {
         Console.WriteLine("\n--- TU TURNO ---");
         Console.ReadLine();
 
-        int tiradaAtaque = TirarDado();
-        int tiradaDefensaEnemigo = TirarDado();
+        int atkRoll = RollDice();
+        int enemyDefRoll = RollDice();
 
-        Console.WriteLine($"Tu tirada de ataque: {tiradaAtaque}. El enemigo saca: {tiradaDefensaEnemigo} de defensa.");
+        Console.WriteLine($"Tu tirada de ataque: {atkRoll}. El enemigo saca: {enemyDefRoll} de defensa.");
 
-        if (tiradaAtaque > tiradaDefensaEnemigo)
+        if (atkRoll > enemyDefRoll)
         {
-            int ataque = tiradaAtaque == 20 ? pj.Ataque + 1 : pj.Ataque;
+            int atk = atkRoll == 20 ? Pj.Atk + 1 : Pj.Atk;
 
-            if (tiradaAtaque == 20)
+            if (atkRoll == 20)
                 Console.WriteLine("¡CRÍTICO! (+1 de daño)");
 
-            if (enemigo.Vida - ataque <= 0)
+            if (EnemyCharacter.Life - atk <= 0)
             {
                 Console.WriteLine("¡Has derrotado a tu enemigo!");
-                enemigo.Vida = 0;
+                EnemyCharacter.Life = 0;
             }
             else
             {
-                enemigo.Vida -= ataque;
-                Console.WriteLine($"Atravesaste la defensa del enemigo. Daño infligido: {ataque}. Vida del enemigo: {enemigo.Vida}");
+                EnemyCharacter.Life -= atk;
+                Console.WriteLine($"Atravesaste la defensa del enemigo. Daño infligido: {atk}. Vida del enemigo: {EnemyCharacter.Life}");
             }
         }
-        else if (tiradaDefensaEnemigo == 20)
+        else if (enemyDefRoll == 20)
         {
             Console.WriteLine("¡DEFENSA CRÍTICA del enemigo! Te contraataca.");
-            TurnoOponente();
+            EnemyRound();
             return;
         }
         else
@@ -179,38 +179,38 @@ internal class Program
         Console.ReadLine();
     }
 
-    private static void TurnoOponente()
+    private static void EnemyRound()
     {
         Console.WriteLine("\n--- TURNO DEL OPONENTE ---");
         Console.ReadLine();
 
-        int tiradaAtaqueEnemigo = TirarDado();
-        int tiradaDefensaTuya = TirarDado();
+        int enemyAttkRoll = RollDice();
+        int defRoll = RollDice();
 
-        Console.WriteLine($"Tirada de ataque enemiga: {tiradaAtaqueEnemigo}. Tu defensa: {tiradaDefensaTuya}.");
+        Console.WriteLine($"Tirada de ataque enemiga: {enemyAttkRoll}. Tu defensa: {defRoll}.");
 
-        if (tiradaAtaqueEnemigo > tiradaDefensaTuya)
+        if (enemyAttkRoll > defRoll)
         {
-            int ataqueEnemigo = tiradaAtaqueEnemigo == 20 ? enemigo.Ataque + 1 : enemigo.Ataque;
+            int attkEnemy = enemyAttkRoll == 20 ? EnemyCharacter.Atk + 1 : EnemyCharacter.Atk;
 
-            if (tiradaAtaqueEnemigo == 20)
+            if (enemyAttkRoll == 20)
                 Console.WriteLine("¡CRÍTICO ENEMIGO! (+1 de daño)");
 
-            if (pj.Vida - ataqueEnemigo <= 0)
+            if (Pj.Life - attkEnemy <= 0)
             {
                 Console.WriteLine("¡Has sido derrotado! ¡Fin de la partida!");
                 Environment.Exit(0);
             }
             else
             {
-                pj.Vida -= ataqueEnemigo;
-                Console.WriteLine($"¡El enemigo atravesó tus defensas! Daño recibido: {ataqueEnemigo}. Tu vida: {pj.Vida}");
+                Pj.Life -= attkEnemy;
+                Console.WriteLine($"¡El enemigo atravesó tus defensas! Daño recibido: {attkEnemy}. Tu vida: {Pj.Life}");
             }
         }
-        else if (tiradaDefensaTuya == 20)
+        else if (defRoll == 20)
         {
             Console.WriteLine("¡DEFENSA CRÍTICA! Contraatacas al enemigo.");
-            TurnoTuyo();
+            YourRound();
             return;
         }
         else
@@ -221,8 +221,8 @@ internal class Program
         Console.ReadLine();
     }
 
-    private static int TirarDado()
+    private static int RollDice()
     {
-        return Dados.Next(1, 21);
+        return Rolls.Next(1, 21);
     }
 }
