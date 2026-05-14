@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ConsoleDuel")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+32b064ea0208e8f771ce24f8ec38c0969b3e982a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4afe35fdfbe89d95861c592f0b564f6ee247dcf4")]
 [assembly: System.Reflection.AssemblyProductAttribute("ConsoleDuel")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ConsoleDuel")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
