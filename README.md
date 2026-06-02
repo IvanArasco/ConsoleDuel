@@ -7,8 +7,9 @@
   - Encuentro normal
   - Recuperación
     
-* El juego no tiene fin, simplemente avanzas de ronda hasta que decides salir del juego (mediante el menú o simplemente forzando el cierre) o te vencen.
-Posibles ampliaciones:
+El juego no tiene fin, simplemente avanzas de ronda hasta que decides salir del juego (mediante el menú o simplemente forzando el cierre) o te vencen.
+
+* Posibles ampliaciones:
 - Loot (objetos) aleatorios.
 - Misiones secundarias (encontrarte NPC amistosos que te envien a hacer algunos encuentros especiales, si lo deseas, por recompensas interesantes.
 - Aparición de 'rares' (enemigos especiales con recompensas especiales).
